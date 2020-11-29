@@ -1,0 +1,2 @@
+FROM maven:3.6.3-amazoncorretto-8
+RUN yum -y install gcc-c++

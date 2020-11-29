@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>vsockj-parent</artifactId>
+        <groupId>solutions.cloudarchitects.vsockj</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>vsockj-native</artifactId>
+    <packaging>nar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <cpp>
+                        <options>
+                            <option>-c</option>
+                            <option>-fPIC</option>
+
+                            <option>-I${JAVA_HOME}/include</option>
+                            <option>-I${JAVA_HOME}/include/linux</option>
+                            <option>-I${JAVA_HOME}/include/darwin</option>
+                            <option>-fexceptions</option>
+                        </options>
+                    </cpp>
+                    <gnuSourceDirectory>src/main/c</gnuSourceDirectory>
+                    <libraries>
+                        <library>
+                            <type>jni</type>
+                            <narSystemPackage>solutions.cloudarchitects.vsockj</narSystemPackage>
+                        </library>
+                    </libraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
