@@ -24,11 +24,6 @@
             <type>nar</type>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.scijava</groupId>
-            <artifactId>native-lib-loader</artifactId>
-            <version>2.3.4</version>
-        </dependency>
     </dependencies>
 
     <build>

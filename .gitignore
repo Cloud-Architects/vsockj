@@ -40,3 +40,5 @@ buildNumber.properties
 *.iml
 *.dylib
 *.so
+
+vsockj-core/**/*.h
