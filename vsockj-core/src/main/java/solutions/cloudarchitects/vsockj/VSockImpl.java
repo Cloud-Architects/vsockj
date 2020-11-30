@@ -14,4 +14,5 @@ public class VSockImpl {
     native void socketCreate();
     native void connect(VSockAddress address);
     native void close();
+    native void write(byte[] b, int off, int len);
 }

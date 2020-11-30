@@ -1,5 +1,5 @@
 # vsockj
-VSOCK support for Java to communicate between a virtual machine and host.
+AF_VSOCK support for Java to communicate between a virtual machine and host.
 
 ## Introduction
 
