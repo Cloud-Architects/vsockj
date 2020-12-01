@@ -48,6 +48,8 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_connect
             env->ThrowNew(env->FindClass("java/net/ConnectException"), "Connection refused");
         } else if (errno == EINPROGRESS) {
             env->ThrowNew(env->FindClass("java/net/ConnectException"), "Connection cannot be completed now");
+        } else if (errno == EINTR) {
+            env->ThrowNew(env->FindClass("java/io/InterruptedIOException"), 0);
         } else if (errno == EISCONN) {
             env->ThrowNew(env->FindClass("java/net/ConnectException"), "Socket is already connected");
         } else if (errno == ENOTSOCK) {
@@ -69,7 +71,17 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_close
   (JNIEnv *env, jobject thisObject) {
     jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
     jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
-    close((int)env->GetIntField(thisObject, fdField));
+    int status = close((int)env->GetIntField(thisObject, fdField));
+    if (status != 0) {
+        if (errno == EBADF) {
+            env->ThrowNew(env->FindClass("java/net/SocketException"), "Not valid file descriptor");
+        } else if (errno == EINTR) {
+            env->ThrowNew(env->FindClass("java/io/InterruptedIOException"), 0);
+        } else  {
+            env->ThrowNew(env->FindClass("java/net/ConnectException"),
+                ("Close failed with error no: " + std::to_string(errno)).c_str());
+        }
+    }
 }
 
 JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_write
