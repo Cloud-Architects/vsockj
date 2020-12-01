@@ -41,7 +41,7 @@ public class VSock {
         return implementation;
     }
 
-    public void connect(VSockAddress address) {
+    public void connect(VSockAddress address) throws SocketException {
         implementation.connect(address);
     }
 
@@ -55,7 +55,7 @@ public class VSock {
         return outputStream;
     }
 
-    public synchronized void close() {
+    public synchronized void close() throws IOException {
         synchronized (closeLock) {
             if (isClosed())
                 return;

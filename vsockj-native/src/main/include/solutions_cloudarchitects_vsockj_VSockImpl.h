@@ -39,6 +39,14 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_close
 JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_write
   (JNIEnv *, jobject, jbyteArray, jint, jint);
 
+/*
+ * Class:     solutions_cloudarchitects_vsockj_VSockImpl
+ * Method:    read
+ * Signature: ([BII)I
+ */
+JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_read
+  (JNIEnv *, jobject, jbyteArray, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

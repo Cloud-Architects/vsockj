@@ -30,6 +30,11 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_connect
     jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
     int s = (int)env->GetIntField(thisObject, fdField);
 
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return;
+    }
+
     jclass VSockAddressClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockAddress");
     jfieldID cidField = env->GetFieldID(VSockAddressClass, "cid", "I");
     jfieldID portField = env->GetFieldID(VSockAddressClass, "port", "I");
@@ -43,7 +48,7 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_connect
     int status = connect(s, (struct sockaddr *) &sock_addr, sizeof(struct sockaddr_vm));
     if (status != 0) {
         if (errno == EALREADY) {
-            env->ThrowNew(env->FindClass("java/net/ConnectException"), "previous connection in progress");
+            env->ThrowNew(env->FindClass("java/net/ConnectException"), "Previous connection in progress");
         } else if (errno == ECONNREFUSED) {
             env->ThrowNew(env->FindClass("java/net/ConnectException"), "Connection refused");
         } else if (errno == EINPROGRESS) {
@@ -71,7 +76,15 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_close
   (JNIEnv *env, jobject thisObject) {
     jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
     jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
-    int status = close((int)env->GetIntField(thisObject, fdField));
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        return;
+    }
+
+    int status = close(s);
+
+    env->SetIntField(thisObject, fdField, -1);
     if (status != 0) {
         if (errno == EBADF) {
             env->ThrowNew(env->FindClass("java/net/SocketException"), "Not valid file descriptor");
@@ -89,6 +102,11 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_write
     jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
     jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
     int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return;
+    }
 
     char BUF[BUFFER_LEN];
     while(len > 0) {
@@ -119,4 +137,42 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_write
         len -= chunkLen;
         offset += chunkLen;
     }
+}
+
+JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_read
+  (JNIEnv * env, jobject thisObject, jbyteArray b, jint off, jint len) {
+    jint nread;
+
+    jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
+    jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return -1;
+    }
+
+    char *bufP = (char *)malloc((size_t)len);
+
+    nread = (jint) recv(s, bufP, len, 0);
+
+    if (nread <= 0) {
+        if (nread < 0) {
+            if (errno == ECONNRESET || errno == EPIPE) {
+                env->ThrowNew(env->FindClass("sun/net/ConnectionResetException"), "Connection reset");
+            }  else if (errno == EBADF) {
+                env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+            } else if (errno == EINTR) {
+                env->ThrowNew(env->FindClass("java/io/InterruptedIOException"), 0);
+            } else  {
+                env->ThrowNew(env->FindClass("java/net/SocketException"),
+                    ("Read failed with error no: " + std::to_string(errno)).c_str());
+            }
+        }
+    } else {
+        env->SetByteArrayRegion(b, off, nread, (jbyte *)bufP);
+    }
+
+    free(bufP);
+    return nread;
 }

@@ -12,13 +12,13 @@ public class VSockOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(int b) {
+    public void write(int b) throws IOException {
         temp[0] = (byte) b;
         this.write(temp, 0, 1);
     }
 
     @Override
-    public void write(byte[] b, int off, int len) {
+    public void write(byte[] b, int off, int len) throws IOException {
         vSock.write(b, off, len);
     }
 
