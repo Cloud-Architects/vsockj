@@ -40,7 +40,29 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_connect
     sock_addr.svm_family = AF_VSOCK;
     sock_addr.svm_port = (int)env->GetIntField(addr, portField);
     sock_addr.svm_cid = (int)env->GetIntField(addr, cidField);
-    connect(s, (struct sockaddr *) &sock_addr, sizeof(struct sockaddr_vm));
+    int status = connect(s, (struct sockaddr *) &sock_addr, sizeof(struct sockaddr_vm));
+    if (status != 0) {
+        if (errno == EALREADY) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "previous connection in progress");
+        } else if (errno == ECONNREFUSED) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "Connection refused");
+        } else if (errno == EINPROGRESS) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "Connection cannot be completed now");
+        } else if (errno == EISCONN) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "Socket is already connected");
+        } else if (errno == ENOTSOCK) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "File descriptor doesn't point to socket");
+        } else if (errno == EPROTOTYPE) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "Protocol not supported");
+        } else if (errno == ETIMEDOUT) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectException"), "Timeout");
+        } else if (errno == ECONNRESET) {
+            env->ThrowNew(env->FindClass("sun/net/ConnectionResetException"), "Connection reset by peer");
+        } else  {
+            env->ThrowNew(env->FindClass("java/net/ConnectException"),
+                ("Connect failed with error no: " + std::to_string(errno)).c_str());
+        }
+    }
 }
 
 JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_close
