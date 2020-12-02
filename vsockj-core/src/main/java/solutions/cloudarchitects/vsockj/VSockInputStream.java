@@ -27,4 +27,10 @@ public class VSockInputStream extends InputStream {
         }
         return temp[0];
     }
+
+    @Override
+    public void close() throws IOException {
+        vSock.close();
+        super.close();
+    }
 }

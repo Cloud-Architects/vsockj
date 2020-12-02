@@ -1,6 +1,7 @@
 package solutions.cloudarchitects.vsockj;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 
@@ -10,6 +11,7 @@ public class VSock {
     private final Object closeLock = new Object();
     private VSockImpl implementation;
     private VSockOutputStream outputStream;
+    private VSockInputStream inputStream;
 
     public VSock() {
     }
@@ -45,14 +47,24 @@ public class VSock {
         implementation.connect(address);
     }
 
-    public synchronized OutputStream getOutputStream() {
+    public synchronized OutputStream getOutputStream() throws IOException {
         if (isClosed()) {
-            throw new IllegalStateException("VSock is closed");
+            throw new SocketException("VSock is closed");
         }
         if (outputStream == null) {
             outputStream = new VSockOutputStream(implementation);
         }
         return outputStream;
+    }
+
+    public synchronized InputStream getInputStream() throws IOException {
+        if (isClosed()) {
+            throw new SocketException("VSock is closed");
+        }
+        if (inputStream == null) {
+            inputStream = new VSockInputStream(implementation);
+        }
+        return inputStream;
     }
 
     public synchronized void close() throws IOException {
