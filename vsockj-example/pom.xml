@@ -57,7 +57,7 @@
                         <!-- automatically creates the classpath using all project dependencies,
                              also adding the project build directory -->
                         <classpath/>
-                        <argument>solutions.cloudarchitects.vsockj.Demo</argument>
+                        <argument>solutions.cloudarchitects.vsockj.ClientDemo</argument>
                     </arguments>
                 </configuration>
             </plugin>
