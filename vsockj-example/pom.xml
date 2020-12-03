@@ -11,6 +11,9 @@
 
     <artifactId>vsockj-example</artifactId>
 
+    <properties>
+        <className>ServerDemo</className>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -57,7 +60,7 @@
                         <!-- automatically creates the classpath using all project dependencies,
                              also adding the project build directory -->
                         <classpath/>
-                        <argument>solutions.cloudarchitects.vsockj.ClientDemo</argument>
+                        <argument>solutions.cloudarchitects.vsockj.${className}</argument>
                     </arguments>
                 </configuration>
             </plugin>
