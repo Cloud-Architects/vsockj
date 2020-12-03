@@ -3,7 +3,7 @@ package solutions.cloudarchitects.vsockj;
 import java.net.SocketAddress;
 import java.util.Objects;
 
-public class VSockAddress extends SocketAddress {
+public final class VSockAddress extends SocketAddress {
     public static final int VMADDR_CID_ANY = -1;
     public static final int VMADDR_CID_HYPERVISOR = 0;
     public static final int VMADDR_CID_RESERVED = 1;

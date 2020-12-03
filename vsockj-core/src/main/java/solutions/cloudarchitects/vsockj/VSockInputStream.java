@@ -3,9 +3,8 @@ package solutions.cloudarchitects.vsockj;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class VSockInputStream extends InputStream {
+public final class VSockInputStream extends InputStream {
 
-    private boolean eof;
     private final VSockImpl vSock;
     private byte[] temp;
 

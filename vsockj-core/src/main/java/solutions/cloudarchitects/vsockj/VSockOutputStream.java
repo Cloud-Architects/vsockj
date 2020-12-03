@@ -3,7 +3,7 @@ package solutions.cloudarchitects.vsockj;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class VSockOutputStream extends OutputStream {
+public final class VSockOutputStream extends OutputStream {
     private final VSockImpl vSock;
     private final byte[] temp = new byte[1];
 

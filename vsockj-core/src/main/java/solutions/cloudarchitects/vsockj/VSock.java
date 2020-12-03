@@ -1,15 +1,13 @@
 package solutions.cloudarchitects.vsockj;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 
-public class VSock {
-    private boolean closed = false;
-    private boolean created = false;
-    private final Object closeLock = new Object();
-    private VSockImpl implementation;
+public final class VSock extends BaseVSock implements Closeable {
+    private boolean connected = false;
     private VSockOutputStream outputStream;
     private VSockInputStream inputStream;
 
@@ -18,10 +16,7 @@ public class VSock {
 
     public VSock(VSockAddress address) {
         try {
-            setImplementation();
-
-            implementation.create();
-            implementation.connect(address);
+            getImplementation().connect(address);
         } catch (Exception e) {
             try {
                 close();
@@ -32,19 +27,16 @@ public class VSock {
         }
     }
 
-    private void setImplementation() {
-        implementation = new VSockImpl();
-        created = true;
-    }
-
-    VSockImpl getImplementation() {
-        if (!created)
-            setImplementation();
-        return implementation;
-    }
-
     public void connect(VSockAddress address) throws SocketException {
-        implementation.connect(address);
+        if (isClosed()) {
+            throw new SocketException("Socket closed");
+        }
+        if (connected) {
+            throw new SocketException("Socket already connected");
+        }
+        getImplementation().connect(address);
+        connected = true;
+        bound = true;
     }
 
     public synchronized OutputStream getOutputStream() throws IOException {
@@ -52,7 +44,7 @@ public class VSock {
             throw new SocketException("VSock is closed");
         }
         if (outputStream == null) {
-            outputStream = new VSockOutputStream(implementation);
+            outputStream = new VSockOutputStream(getImplementation());
         }
         return outputStream;
     }
@@ -62,22 +54,14 @@ public class VSock {
             throw new SocketException("VSock is closed");
         }
         if (inputStream == null) {
-            inputStream = new VSockInputStream(implementation);
+            inputStream = new VSockInputStream(getImplementation());
         }
         return inputStream;
     }
 
-    public synchronized void close() throws IOException {
-        synchronized (closeLock) {
-            if (isClosed())
-                return;
-            if (created)
-                implementation.close();
-            closed = true;
-        }
-    }
-
-    private boolean isClosed() {
-        return closed;
+    void postAccept() {
+        created = true;
+        bound = true;
+        connected = true;
     }
 }

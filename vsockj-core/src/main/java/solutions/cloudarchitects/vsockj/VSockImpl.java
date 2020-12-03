@@ -3,14 +3,14 @@ package solutions.cloudarchitects.vsockj;
 import java.io.IOException;
 import java.net.SocketException;
 
-public class VSockImpl {
+public final class VSockImpl {
     static {
         System.loadLibrary("vsockj-native-" + VSockJ.VERSION);
     }
 
     int fd = -1;
 
-    protected void create() throws SocketException {
+    void create() throws SocketException {
         socketCreate();
     }
 
@@ -19,4 +19,7 @@ public class VSockImpl {
     native void close() throws IOException;
     native void write(byte[] b, int off, int len) throws IOException;
     native int read(byte[] b, int off, int len) throws IOException;
+    native void bind(VSockAddress address) throws IOException;
+    native void listen(int backlog) throws IOException;
+    native void accept(VSockImpl peerVSock);
 }

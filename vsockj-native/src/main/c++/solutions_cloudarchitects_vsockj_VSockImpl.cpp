@@ -25,7 +25,6 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_socketCre
 
 JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_connect
   (JNIEnv *env, jobject thisObject, jobject addr) {
-
     jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
     jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
     int s = (int)env->GetIntField(thisObject, fdField);
@@ -175,4 +174,92 @@ JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_read
 
     free(bufP);
     return nread;
+}
+
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_bind
+  (JNIEnv *env, jobject thisObject, jobject addr) {
+    jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
+    jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return;
+    }
+
+    jclass VSockAddressClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockAddress");
+    jfieldID cidField = env->GetFieldID(VSockAddressClass, "cid", "I");
+    jfieldID portField = env->GetFieldID(VSockAddressClass, "port", "I");
+
+
+    struct sockaddr_vm sock_addr;
+    std::memset(&sock_addr, 0, sizeof(struct sockaddr_vm));
+    sock_addr.svm_family = AF_VSOCK;
+    sock_addr.svm_port = (int)env->GetIntField(addr, portField);
+    sock_addr.svm_cid = (int)env->GetIntField(addr, cidField);
+
+    int status = bind(s, (struct sockaddr *) &sock_addr, sizeof(struct sockaddr_vm));
+
+    if (status != 0) {
+        if (errno == EACCES) {
+            env->ThrowNew(env->FindClass("java/net/BindException"), "Insufficient access");
+        } else if (errno == EADDRINUSE) {
+            env->ThrowNew(env->FindClass("java/net/BindException"), "Address already in use");
+        } else if (errno == EBADF) {
+            env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        } else if (errno == EINTR) {
+            env->ThrowNew(env->FindClass("java/io/InterruptedIOException"), 0);
+        } else if (errno == EADDRNOTAVAIL) {
+            env->ThrowNew(env->FindClass("java/net/BindException"), "Nonexistent interface requested");
+        } else  {
+            env->ThrowNew(env->FindClass("java/net/SocketException"),
+                ("Bind failed with error no: " + std::to_string(errno)).c_str());
+        }
+    }
+}
+
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_listen
+  (JNIEnv *env, jobject thisObject, jint backlog) {
+    jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
+    jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return;
+    }
+
+    int status = listen(s, (int) backlog);
+    if (status != 0) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"),
+                        ("Listen exception " + std::to_string(errno)).c_str());
+    }
+}
+
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_accept
+  (JNIEnv *env, jobject thisObject, jobject connectionVSock) {
+    jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
+    jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+        env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+        return;
+    }
+
+	struct sockaddr_vm peer_addr; // TODO: set in socket
+	socklen_t peer_addr_size = sizeof(struct sockaddr_vm);
+	int peer_fd = accept(s, (struct sockaddr *) &peer_addr, &peer_addr_size);
+
+    if (peer_fd == -1) {
+        if (errno == EAGAIN) {
+            env->ThrowNew(env->FindClass("java/net/SocketException"), "Try again error"); // TODO: implement retry several times
+        } else  {
+            env->ThrowNew(env->FindClass("java/net/SocketException"),
+                ("Bind failed with error no: " + std::to_string(errno)).c_str());
+        }
+        return;
+    }
+
+	env->SetIntField(connectionVSock, fdField, peer_fd);
 }

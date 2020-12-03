@@ -47,6 +47,30 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_write
 JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_read
   (JNIEnv *, jobject, jbyteArray, jint, jint);
 
+/*
+ * Class:     solutions_cloudarchitects_vsockj_VSockImpl
+ * Method:    bind
+ * Signature: (Lsolutions/cloudarchitects/vsockj/VSockAddress;)V
+ */
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_bind
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     solutions_cloudarchitects_vsockj_VSockImpl
+ * Method:    listen
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_listen
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     solutions_cloudarchitects_vsockj_VSockImpl
+ * Method:    accept
+ * Signature: (Lsolutions/cloudarchitects/vsockj/VSockImpl;)V
+ */
+JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_accept
+  (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif
