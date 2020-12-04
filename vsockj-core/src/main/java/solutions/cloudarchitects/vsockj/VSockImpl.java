@@ -22,4 +22,5 @@ public final class VSockImpl {
     native void bind(VSockAddress address) throws IOException;
     native void listen(int backlog) throws IOException;
     native void accept(VSockImpl peerVSock);
+    native int getLocalCid();
 }

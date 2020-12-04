@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 public class ClientDemo {
 
     public static void main(String[] args) throws IOException {
-        VSock sock = new VSock(new VSockAddress(10, 5000));
+        VSock sock = new VSock(new VSockAddress(3, 5000));
         sock.getOutputStream()
                 .write("Hello world\n".getBytes(StandardCharsets.UTF_8));
         byte[] b = new byte[4096];

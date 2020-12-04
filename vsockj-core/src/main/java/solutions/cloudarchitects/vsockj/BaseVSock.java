@@ -37,6 +37,10 @@ abstract class BaseVSock implements Closeable {
         bind(address, DEFAULT_BACKLOG);
     }
 
+    public int getLocalCid() throws IOException {
+        return getImplementation().getLocalCid();
+    }
+
     public void bind(VSockAddress address, int backlog) throws IOException {
         if (isClosed()) {
             throw new SocketException("Socket closed");

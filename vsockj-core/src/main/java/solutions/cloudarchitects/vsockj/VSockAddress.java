@@ -8,6 +8,7 @@ public final class VSockAddress extends SocketAddress {
     public static final int VMADDR_CID_HYPERVISOR = 0;
     public static final int VMADDR_CID_RESERVED = 1;
     public static final int VMADDR_CID_HOST = 2;
+    public static final int VMADDR_CID_PARENT = 3;
 
     public static final int VMADDR_PORT_ANY = -1;
     final int cid;

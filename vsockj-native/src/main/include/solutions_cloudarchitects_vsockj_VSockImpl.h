@@ -71,6 +71,14 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_listen
 JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_accept
   (JNIEnv *, jobject, jobject);
 
+/*
+ * Class:     solutions_cloudarchitects_vsockj_VSockImpl
+ * Method:    getLocalCid
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_getLocalCid
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

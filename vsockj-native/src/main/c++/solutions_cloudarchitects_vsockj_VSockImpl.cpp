@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <linux/vm_sockets.h>
 #include <unistd.h>
 #include <errno.h>
@@ -262,4 +263,19 @@ JNIEXPORT void JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_accept
     }
 
 	env->SetIntField(connectionVSock, fdField, peer_fd);
+}
+
+JNIEXPORT jint JNICALL Java_solutions_cloudarchitects_vsockj_VSockImpl_getLocalCid
+  (JNIEnv *env, jobject thisObject) {
+    jclass VSockImplClass = env->FindClass("solutions/cloudarchitects/vsockj/VSockImpl");
+    jfieldID fdField = env->GetFieldID(VSockImplClass, "fd", "I");
+    int s = (int)env->GetIntField(thisObject, fdField);
+
+    if (s == -1) {
+      env->ThrowNew(env->FindClass("java/net/SocketException"), "Socket is closed");
+      return (jint) -1;
+    }
+    unsigned int cid;
+    ioctl(s, IOCTL_VM_SOCKETS_GET_LOCAL_CID, &cid);
+    return (jint) cid;
 }

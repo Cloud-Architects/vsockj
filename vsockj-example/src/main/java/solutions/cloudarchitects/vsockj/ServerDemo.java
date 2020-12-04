@@ -3,13 +3,12 @@ package solutions.cloudarchitects.vsockj;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static solutions.cloudarchitects.vsockj.VSockAddress.VMADDR_CID_HOST;
-
 public class ServerDemo {
 
     public static void main(String[] args) throws IOException {
         ServerVSock server = new ServerVSock();
-        server.bind(new VSockAddress(VMADDR_CID_HOST, 5000));
+        server.bind(new VSockAddress(VSockAddress.VMADDR_CID_ANY, 5000));
+        System.out.println("Bound on Cid: " + server.getLocalCid());
 
         try {
             try (VSock peerVSock = server.accept()) {
