@@ -21,7 +21,7 @@ jobs:
       - image: circleci/openjdk:stretch
     steps:
       - checkout
-      - run: sudo apt update && sudo apt install -y g++
+      - run: sudo rm -rf /var/lib/apt/lists/* && sudo apt update && sudo apt install -y g++
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
