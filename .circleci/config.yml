@@ -31,7 +31,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - persist_to_workspace:
-          root: ./
+          root: /tmp/workspace
           paths:
             - target/
 
