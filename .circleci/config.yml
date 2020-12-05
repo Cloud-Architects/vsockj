@@ -5,8 +5,11 @@ jobs:
     parallelism: 2
     docker:
       - image: circleci/openjdk:8-jdk-stretch-node
+    working_directory: ~/circleci-demo-workflows
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/circleci-demo-workflows
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
@@ -19,8 +22,11 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch-node
+    working_directory: ~/circleci-demo-workflows
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/circleci-demo-workflows
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
@@ -31,7 +37,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: .
           paths:
             - target/
 
