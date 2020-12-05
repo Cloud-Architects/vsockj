@@ -2,7 +2,6 @@ version: 2.0
 
 jobs:
   test:
-    parallelism: 2
     docker:
       - image: circleci/openjdk:8-jdk-stretch-node
     steps:
