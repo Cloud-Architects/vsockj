@@ -1,9 +1,47 @@
-version: 2.1
+version: 2.0
 
-orbs:
-  maven: circleci/maven@0.0.12
+jobs:
+  test:
+    parallelism: 2
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - attach_workspace:
+          at: ./target
+      - run: |
+          ./mvnw test verify
+
+  build:
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - run: sudo apt update && sudo apt install -y g++
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run: ./mvnw -Dmaven.test.skip=true package
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - target/
 
 workflows:
-  maven_test:
+  version: 2
+
+  build-then-test:
     jobs:
-      - maven/test # checkout, build, test, and upload test results
+      - build
+      - test:
+          requires:
+            - build
