@@ -1,6 +1,17 @@
 version: 2.0
 
 jobs:
+  deploy-snapshot:
+    docker:
+      - image: circleci/openjdk:8-jdk-stretch-node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-
+      - run: |
+          ./mvnw -s .circleci.settings.xml -Dmaven.test.skip=true deploy
   test:
     docker:
       - image: circleci/openjdk:8-jdk-stretch-node
@@ -11,8 +22,7 @@ jobs:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
       - run: |
-          ./mvnw test verify
-
+          ./mvnw -s .circleci.settings.xml test verify
   build:
     docker:
       - image: circleci/openjdk:8-jdk-stretch-node
@@ -22,7 +32,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "pom.xml" }}
             - v1-dependencies-
-      - run: ./mvnw -Dmaven.test.skip=true package
+      - run: ./mvnw -s .circleci.settings.xml -Dmaven.test.skip=true package
       - save_cache:
           paths:
             - ~/.m2
@@ -37,3 +47,6 @@ workflows:
       - test:
           requires:
             - build
+      - deploy-snapshot:
+          requires:
+            - test
